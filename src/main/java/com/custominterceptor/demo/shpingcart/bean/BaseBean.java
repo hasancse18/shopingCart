@@ -9,4 +9,5 @@ public class BaseBean {
     String query;
     String brandName;
     String productName;
+    String categoryName;
 }
