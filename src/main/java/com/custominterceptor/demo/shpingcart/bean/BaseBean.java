@@ -5,8 +5,8 @@ import lombok.Data;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
-public class ImageBean {
-    private Long id;
-    private String fileName;
-    private String downloadUrl;
+public class BaseBean {
+    String query;
+    String brandName;
+    String productName;
 }
