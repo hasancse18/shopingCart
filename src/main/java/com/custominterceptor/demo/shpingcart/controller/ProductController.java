@@ -30,8 +30,7 @@ public class ProductController {
     private ProductService productService;
     @Autowired
     private ProductConfigService productConfigService;
-    ObjectMapper objectMapper = new ObjectMapper();
-
+    //CRUD is handled in the ProductConfigService class
     @PostMapping("/product")
     public ResponseEntity<ApiResponse>productController(@RequestBody String jsonString) throws JsonProcessingException {
         return  ResponseEntity.ok(productConfigService.execute(jsonString));

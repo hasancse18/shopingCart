@@ -44,7 +44,6 @@ public class ProductConfigService {
 
                     response.setData(convertedProducts);
                     response.setMessage("Get Product");
-                    //return objectMapper.writeValueAsString(response);
                     return response;
 
                 }
