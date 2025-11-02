@@ -1,54 +1,59 @@
 package com.custominterceptor.demo.shpingcart.model;
 
-import jakarta.persistence.*;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 @Data
-@Entity
-public class Cart {
+public class Cart implements Serializable {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long userId;
+    private Map<Long, CartItem> items = new HashMap<>();
     private BigDecimal totalAmount = BigDecimal.ZERO;
 
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<CartItem> items = new HashSet<>();
+    public Cart() {}
 
-    @OneToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-
-
-
-
-
-
-    public void addItem(CartItem item) {
-        this.items.add(item);
-        item.setCart(this);
-        updateTotalAmount();
+    public Cart(Long userId) {
+        this.userId = userId;
     }
 
-    public void removeItem(CartItem item) {
-        this.items.remove(item);
-        item.setCart(null);
-        updateTotalAmount();
+    public Long getUserId() {
+        return userId;
     }
 
-    private void updateTotalAmount() {
-        this.totalAmount = items.stream().map(item -> {
-            BigDecimal unitPrice = item.getUnitPrice();
-            if (unitPrice == null) {
-                return  BigDecimal.ZERO;
-            }
-            return unitPrice.multiply(BigDecimal.valueOf(item.getQuantity()));
-        }).reduce(BigDecimal.ZERO, BigDecimal::add);
+    public Map<Long, CartItem> getItems() {
+        return items;
     }
 
+    public BigDecimal getTotalAmount() {
+        return totalAmount;
+    }
 
+    // Add or update product in cart
+    public void addItem(Product product, int quantity) {
+        CartItem item = items.get(product.getId());
+        if (item == null) {
+            item = new CartItem(product, quantity);
+        } else {
+            item.setQuantity(item.getQuantity() + quantity);
+            item.updateSubtotal();
+        }
+        items.put(product.getId(), item);
+        recalcTotal();
+    }
+
+    // Remove product
+    public void removeItem(Long productId) {
+        items.remove(productId);
+        recalcTotal();
+    }
+
+    private void recalcTotal() {
+        totalAmount = items.values().stream()
+                .map(CartItem::getSubtotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
 }

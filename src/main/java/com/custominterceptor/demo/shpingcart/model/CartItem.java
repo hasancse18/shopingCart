@@ -1,32 +1,43 @@
 package com.custominterceptor.demo.shpingcart.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Data
-@Entity
-public class CartItem {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private int quantity;
+public class CartItem implements Serializable {
+
+    private Long productId;
+    private String productName;
     private BigDecimal unitPrice;
-    private BigDecimal totalPrice;
+    private int quantity;
+    private BigDecimal subtotal;
 
-    @ManyToOne
-    @JoinColumn(name = "product_id")
-    private Product product;
+    public CartItem() {}
 
-    @JsonIgnore
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "cart_id")
-    private Cart cart;
+    public CartItem(Product product, int quantity) {
+        this.productId = product.getId();
+        this.productName = product.getName();
+        this.unitPrice = product.getPrice();
+        this.quantity = quantity;
+        updateSubtotal();
+    }
 
-    public void setTotalPrice() {
-        this.totalPrice = this.unitPrice.multiply(new BigDecimal(quantity));
+    public void updateSubtotal()
+    {
+        this.subtotal = unitPrice.multiply(BigDecimal.valueOf(quantity));
+    }
 
+    // Getters & setters
+    public Long getProductId() { return productId; }
+    public String getProductName() { return productName; }
+    public BigDecimal getUnitPrice() { return unitPrice; }
+    public int getQuantity() { return quantity; }
+    public BigDecimal getSubtotal() { return subtotal; }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+        updateSubtotal();
     }
 }

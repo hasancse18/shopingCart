@@ -1,50 +1,44 @@
 package com.custominterceptor.demo.shpingcart.service.cart;
 
-import com.custominterceptor.demo.shpingcart.exception.ResourceNotFoundException;
 import com.custominterceptor.demo.shpingcart.model.Cart;
-import com.custominterceptor.demo.shpingcart.repository.CartItemRepository;
-import com.custominterceptor.demo.shpingcart.repository.CartRepository;
+import com.custominterceptor.demo.shpingcart.model.Product;
+import com.custominterceptor.demo.shpingcart.service.product.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.util.concurrent.atomic.AtomicLong;
-
 @Service
-public class CartServiceImpl implements CartService{
+public class CartServiceImpl
+{
+    @Autowired
+    private RadishService redisCartService;
 
     @Autowired
-    CartRepository cartRepository;
+    private ProductService productService; // Assume you already have this
 
-    @Autowired
-    CartItemRepository cartItemRepository;
-    private final AtomicLong cartIdGenerator = new AtomicLong(0);
+    public Cart addToCart(Long userId, Long productId, int quantity) {
+        Product product = productService.getProductById(productId);
+        Cart cart = redisCartService.getCart(userId);
+        cart.addItem(product, quantity);
+        redisCartService.saveCart(cart);
+        return cart;
+}
 
-    @Override
-    public Cart getCart(Long id) {
-        Cart cart = cartRepository.findById(id)
-                .orElseThrow(()-> new ResourceNotFoundException("Cart Not Found"));
-       return cart;
+    public Cart removeFromCart(Long userId, Long productId) {
+        Cart cart = redisCartService.getCart(userId);
+        cart.removeItem(productId);
+        redisCartService.saveCart(cart);
+        return cart;
     }
 
-    @Override
-    public void clearCart(Long id) {
-        Cart cart = getCart(id);
-        cartItemRepository.deleteAllCartById(id);
-        cart.getItems().clear();
-        cartRepository.deleteById(id);
-    }
+public Cart getCart(Long userId) {
+    return redisCartService.getCart(userId);
+}
 
-    @Override
-    public Long initializeNewCart() {
-        Cart newCart = new Cart();
-        Long id = cartIdGenerator.incrementAndGet();
-        newCart.setId(id);
-        return cartRepository.save(newCart).getId();
-    }
-
-    @Override
-    public Cart getCartByUserId(Long userId) {
-        return cartRepository.findByUserId(userId);
-    }
+public void checkout(Long userId) {
+    Cart cart = redisCartService.getCart(userId);
+    // ✅ Here you would persist to DB
+    // cartRepository.save(mapToEntity(cart));
+    System.err.println("Cart: "+ cart);
+    //redisCartService.deleteCart(userId);
+}
 }
