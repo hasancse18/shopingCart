@@ -1,10 +1,16 @@
 package com.custominterceptor.demo.shpingcart.service.cart;
 
 import com.custominterceptor.demo.shpingcart.model.Cart;
+import com.custominterceptor.demo.shpingcart.model.CartEntity;
+import com.custominterceptor.demo.shpingcart.model.CartItem;
 import com.custominterceptor.demo.shpingcart.model.Product;
+import com.custominterceptor.demo.shpingcart.repository.CartRepository;
 import com.custominterceptor.demo.shpingcart.service.product.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class CartServiceImpl
@@ -14,6 +20,9 @@ public class CartServiceImpl
 
     @Autowired
     private ProductService productService; // Assume you already have this
+
+    @Autowired
+    CartRepository cartRepository;
 
     public Cart addToCart(Long userId, Long productId, int quantity) {
         Product product = productService.getProductById(productId);
@@ -30,15 +39,33 @@ public class CartServiceImpl
         return cart;
     }
 
-public Cart getCart(Long userId) {
-    return redisCartService.getCart(userId);
-}
+    public Cart getCart(Long userId)
+    {
+        return redisCartService.getCart(userId);
+    }
 
-public void checkout(Long userId) {
-    Cart cart = redisCartService.getCart(userId);
-    // ✅ Here you would persist to DB
-    // cartRepository.save(mapToEntity(cart));
-    System.err.println("Cart: "+ cart);
-    //redisCartService.deleteCart(userId);
-}
+    public CartEntity checkout(Long userId) {
+        CartEntity cartEntity = new CartEntity();
+        Cart cart = redisCartService.getCart(userId);
+        cartEntity =mapToCartEntity(cart);
+        // ✅ Here you would persist to DB
+        cartEntity= cartRepository.save(cartEntity);
+        redisCartService.deleteCart(userId);
+        System.err.println("Cart: "+ cartEntity);
+
+        return cartEntity;
+    }
+
+    public CartEntity mapToCartEntity(Cart cart)
+    {
+        CartEntity cartEntity = new CartEntity();
+        var cartItem = cart.getItems();
+        List<CartItem> items = new ArrayList<>(cartItem.values());
+        cartEntity.setItems(items);
+        cartEntity.setTotalAmount(cart.getTotalAmount());
+        cartEntity.setUserId(cart.getUserId());
+        return cartEntity;
+    }
+
+
 }
