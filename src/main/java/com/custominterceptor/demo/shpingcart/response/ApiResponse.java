@@ -13,4 +13,12 @@ import lombok.NoArgsConstructor;
 public class ApiResponse {
     String message;
     Object data;
+
+    @Override
+    public String toString() {
+        return "ApiResponse{" +
+                "message='" + message + '\'' +
+                ", data=" + data +
+                '}';
+    }
 }

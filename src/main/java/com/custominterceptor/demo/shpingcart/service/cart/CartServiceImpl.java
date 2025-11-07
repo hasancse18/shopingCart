@@ -13,17 +13,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class CartServiceImpl
+public class CartServiceImpl implements CartService
 {
     @Autowired
     private RadishService redisCartService;
 
     @Autowired
-    private ProductService productService; // Assume you already have this
+    private ProductService productService;
 
     @Autowired
     CartRepository cartRepository;
 
+    @Override
     public Cart addToCart(Long userId, Long productId, int quantity) {
         Product product = productService.getProductById(productId);
         Cart cart = redisCartService.getCart(userId);
@@ -32,6 +33,7 @@ public class CartServiceImpl
         return cart;
 }
 
+    @Override
     public Cart removeFromCart(Long userId, Long productId) {
         Cart cart = redisCartService.getCart(userId);
         cart.removeItem(productId);
@@ -39,11 +41,16 @@ public class CartServiceImpl
         return cart;
     }
 
+    @Override
     public Cart getCart(Long userId)
     {
         return redisCartService.getCart(userId);
     }
 
+
+
+
+    @Override
     public CartEntity checkout(Long userId) {
         CartEntity cartEntity = new CartEntity();
         Cart cart = redisCartService.getCart(userId);

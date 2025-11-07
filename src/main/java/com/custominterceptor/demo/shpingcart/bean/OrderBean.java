@@ -4,7 +4,7 @@ import com.custominterceptor.demo.shpingcart.model.CartEntity;
 import lombok.Data;
 
 @Data
-public class OrderBean {
+public class OrderBean extends BaseBean{
     private Long userId;
     private CartEntity cartEntity;
 }

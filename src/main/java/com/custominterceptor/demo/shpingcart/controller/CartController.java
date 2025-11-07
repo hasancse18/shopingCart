@@ -1,16 +1,31 @@
 package com.custominterceptor.demo.shpingcart.controller;
 
 import com.custominterceptor.demo.shpingcart.model.Cart;
+import com.custominterceptor.demo.shpingcart.service.cart.CartConfigService;
 import com.custominterceptor.demo.shpingcart.service.cart.CartServiceImpl;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/cart")
+@RequestMapping("${api.prefix}/")
 public class CartController {
 
     @Autowired
+    CartConfigService cartConfigService;
+
+    @PostMapping("cart")
+    ResponseEntity<?>cartController(@RequestBody String json) throws JsonProcessingException {
+        return ResponseEntity.ok(cartConfigService.execute(json));
+    }
+
+
+
+
+
+    /*@Autowired
     private CartServiceImpl cartService;
 
     @PostMapping("/{userId}/add/{productId}")
@@ -32,5 +47,5 @@ public class CartController {
     public String checkout(@PathVariable Long userId) {
         cartService.checkout(userId);
         return "Checkout successful!";
-    }
+    }*/
 }

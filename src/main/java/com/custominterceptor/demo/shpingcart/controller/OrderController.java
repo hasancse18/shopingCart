@@ -9,7 +9,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/order")
 public class OrderController {
 
-    @Autowired
+
+    
+
+    /*@Autowired
     OrderService orderService;
 
     @GetMapping("/user")
@@ -22,5 +25,5 @@ public class OrderController {
     ResponseEntity<?> postOrder(@RequestParam Long userId)
     {
         return ResponseEntity.ok(orderService.postOrder(userId));
-    }
+    }*/
 }
